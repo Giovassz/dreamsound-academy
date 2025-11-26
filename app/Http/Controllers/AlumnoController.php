@@ -38,7 +38,6 @@ class AlumnoController extends Controller
                 'direccion' => 'nullable|string',
                 'instrumentos' => 'nullable|array',
                 'instrumentos.*' => 'exists:instrumentos,id',
-                'is_active' => 'boolean',
             ]);
 
             $validated['is_active'] = $request->has('is_active') ? true : false;
@@ -76,7 +75,6 @@ class AlumnoController extends Controller
                 'direccion' => 'nullable|string',
                 'instrumentos' => 'nullable|array',
                 'instrumentos.*' => 'exists:instrumentos,id',
-                'is_active' => 'boolean',
             ]);
 
             $validated['is_active'] = $request->has('is_active') ? true : false;
