@@ -37,7 +37,7 @@ class UserController extends Controller
                 'is_active' => 'boolean',
             ]);
 
-            $validated['password'] = bcrypt($validated['password']);
+            $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
             $validated['is_active'] = $request->has('is_active') ? true : false;
 
             User::create($validated);
