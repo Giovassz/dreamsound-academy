@@ -34,7 +34,6 @@ class UserController extends Controller
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8|confirmed',
                 'role_id' => 'required|exists:roles,id',
-                'is_active' => 'boolean',
             ]);
 
             $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
