@@ -28,27 +28,34 @@ class AlumnoController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'apellido' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:alumnos',
-            'telefono' => 'nullable|string|max:20',
-            'fecha_nacimiento' => 'nullable|date',
-            'direccion' => 'nullable|string',
-            'instrumentos' => 'nullable|array',
-            'instrumentos.*' => 'exists:instrumentos,id',
-            'is_active' => 'boolean',
-        ]);
+        try {
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:255',
+                'apellido' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:alumnos',
+                'telefono' => 'nullable|string|max:20',
+                'fecha_nacimiento' => 'nullable|date',
+                'direccion' => 'nullable|string',
+                'instrumentos' => 'nullable|array',
+                'instrumentos.*' => 'exists:instrumentos,id',
+                'is_active' => 'boolean',
+            ]);
 
-        $validated['is_active'] = $request->has('is_active');
-        $instrumentos = $validated['instrumentos'] ?? [];
-        unset($validated['instrumentos']);
+            $validated['is_active'] = $request->has('is_active') ? true : false;
+            $instrumentos = $validated['instrumentos'] ?? [];
+            unset($validated['instrumentos']);
 
-        $alumno = Alumno::create($validated);
-        $alumno->instrumentos()->sync($instrumentos);
+            $alumno = Alumno::create($validated);
+            
+            if (!empty($instrumentos)) {
+                $alumno->instrumentos()->sync($instrumentos);
+            }
 
-        return redirect()->route('admin.alumnos.index')
-            ->with('success', 'Alumno creado exitosamente.');
+            return redirect()->route('admin.alumnos.index')
+                ->with('success', 'Alumno creado exitosamente.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Error al crear alumno: ' . $e->getMessage()])->withInput();
+        }
     }
 
     public function edit(Alumno $alumno)

@@ -28,21 +28,25 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role_id' => 'required|exists:roles,id',
-            'is_active' => 'boolean',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8|confirmed',
+                'role_id' => 'required|exists:roles,id',
+                'is_active' => 'boolean',
+            ]);
 
-        $validated['password'] = bcrypt($validated['password']);
-        $validated['is_active'] = $request->has('is_active');
+            $validated['password'] = bcrypt($validated['password']);
+            $validated['is_active'] = $request->has('is_active') ? true : false;
 
-        User::create($validated);
+            User::create($validated);
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'Usuario creado exitosamente.');
+            return redirect()->route('admin.users.index')
+                ->with('success', 'Usuario creado exitosamente.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Error al crear usuario: ' . $e->getMessage()])->withInput();
+        }
     }
 
     public function edit(User $user)
@@ -62,7 +66,7 @@ class UserController extends Controller
         ]);
 
         if (!empty($validated['password'])) {
-            $validated['password'] = bcrypt($validated['password']);
+            $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
         } else {
             unset($validated['password']);
         }
