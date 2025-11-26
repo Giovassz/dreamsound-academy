@@ -52,6 +52,16 @@
                             <span class="badge bg-primary">
                                 {{ $clase->alumnos->count() }} / {{ $clase->capacidad_maxima }}
                             </span>
+                            @if($clase->alumnos->count() > 0)
+                                <br><small class="text-muted">
+                                    @foreach($clase->alumnos->take(2) as $alumno)
+                                        {{ $alumno->nombre }}{{ !$loop->last ? ', ' : '' }}
+                                    @endforeach
+                                    @if($clase->alumnos->count() > 2)
+                                        +{{ $clase->alumnos->count() - 2 }} más
+                                    @endif
+                                </small>
+                            @endif
                         </td>
                         <td>
                             @if($clase->is_active)
