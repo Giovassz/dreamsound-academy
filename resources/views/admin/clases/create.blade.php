@@ -161,5 +161,78 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const capacidadInput = document.getElementById('capacidad_maxima');
+    const maxCapacitySpan = document.getElementById('max-capacity');
+    const maxCapacityDisplay = document.getElementById('max-capacity-display');
+    const checkboxes = document.querySelectorAll('.alumno-checkbox');
+    const selectedCount = document.getElementById('selected-count');
+    
+    function updateCapacity() {
+        const max = capacidadInput.value || 10;
+        if (maxCapacitySpan) maxCapacitySpan.textContent = max;
+        if (maxCapacityDisplay) maxCapacityDisplay.textContent = max;
+        
+        checkboxes.forEach(cb => {
+            cb.setAttribute('data-max', max);
+        });
+        
+        updateSelectedCount();
+    }
+    
+    function updateSelectedCount() {
+        const checked = document.querySelectorAll('.alumno-checkbox:checked').length;
+        const max = parseInt(capacidadInput.value || 10);
+        if (selectedCount) selectedCount.textContent = checked;
+        
+        if (checked >= max) {
+            if (selectedCount) {
+                selectedCount.style.color = 'red';
+                selectedCount.style.fontWeight = 'bold';
+            }
+            // Deshabilitar checkboxes no seleccionados
+            checkboxes.forEach(cb => {
+                if (!cb.checked) {
+                    cb.disabled = true;
+                }
+            });
+        } else {
+            if (selectedCount) {
+                selectedCount.style.color = '';
+                selectedCount.style.fontWeight = '';
+            }
+            // Habilitar todos los checkboxes
+            checkboxes.forEach(cb => {
+                cb.disabled = false;
+            });
+        }
+    }
+    
+    if (capacidadInput) {
+        capacidadInput.addEventListener('input', updateCapacity);
+    }
+    
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            const checked = document.querySelectorAll('.alumno-checkbox:checked').length;
+            const max = parseInt(capacidadInput.value || 10);
+            
+            if (checked > max) {
+                this.checked = false;
+                alert('No puedes seleccionar más de ' + max + ' alumnos.');
+            }
+            
+            updateSelectedCount();
+        });
+    });
+    
+    updateCapacity();
+    updateSelectedCount();
+});
+</script>
+@endpush
 @endsection
 
