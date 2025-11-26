@@ -57,26 +57,30 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'role_id' => 'required|exists:roles,id',
-            'is_active' => 'boolean',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+                'password' => 'nullable|string|min:8|confirmed',
+                'role_id' => 'required|exists:roles,id',
+                'is_active' => 'boolean',
+            ]);
 
-        if (!empty($validated['password'])) {
-            $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
-        } else {
-            unset($validated['password']);
+            if (!empty($validated['password'])) {
+                $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+            } else {
+                unset($validated['password']);
+            }
+
+            $validated['is_active'] = $request->has('is_active') ? true : false;
+
+            $user->update($validated);
+
+            return redirect()->route('admin.users.index')
+                ->with('success', 'Usuario actualizado exitosamente.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Error al actualizar usuario: ' . $e->getMessage()])->withInput();
         }
-
-        $validated['is_active'] = $request->has('is_active');
-
-        $user->update($validated);
-
-        return redirect()->route('admin.users.index')
-            ->with('success', 'Usuario actualizado exitosamente.');
     }
 
     public function destroy(User $user)
