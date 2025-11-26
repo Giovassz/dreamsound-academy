@@ -47,6 +47,13 @@ class ClaseController extends Controller
         $alumnos = $validated['alumnos'] ?? [];
         unset($validated['alumnos']);
 
+        // Validar capacidad máxima
+        if (count($alumnos) > $validated['capacidad_maxima']) {
+            return back()->withErrors([
+                'alumnos' => 'El número de alumnos seleccionados (' . count($alumnos) . ') excede la capacidad máxima (' . $validated['capacidad_maxima'] . ').'
+            ])->withInput();
+        }
+
         $clase = Clase::create($validated);
         $clase->alumnos()->sync($alumnos);
 
@@ -79,6 +86,13 @@ class ClaseController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $alumnos = $validated['alumnos'] ?? [];
         unset($validated['alumnos']);
+
+        // Validar capacidad máxima
+        if (count($alumnos) > $validated['capacidad_maxima']) {
+            return back()->withErrors([
+                'alumnos' => 'El número de alumnos seleccionados (' . count($alumnos) . ') excede la capacidad máxima (' . $validated['capacidad_maxima'] . ').'
+            ])->withInput();
+        }
 
         $clase->update($validated);
         $clase->alumnos()->sync($alumnos);

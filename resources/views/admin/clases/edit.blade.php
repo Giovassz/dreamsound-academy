@@ -99,22 +99,44 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Alumnos</label>
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-people"></i> Alumnos 
+                            <small class="text-muted">(Selecciona hasta <span id="max-capacity">{{ old('capacidad_maxima', $clase->capacidad_maxima) }}</span> alumnos)</small>
+                        </label>
+                        @error('alumnos')
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        @enderror
+                        @if($alumnos->count() > 0)
                         <div class="row">
                             @foreach($alumnos as $alumno)
-                            <div class="col-md-6">
+                            <div class="col-md-6 mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" 
+                                    <input class="form-check-input alumno-checkbox" type="checkbox" 
                                            name="alumnos[]" value="{{ $alumno->id }}" 
                                            id="alumno_{{ $alumno->id }}"
-                                           {{ in_array($alumno->id, old('alumnos', $clase->alumnos->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                           {{ in_array($alumno->id, old('alumnos', $clase->alumnos->pluck('id')->toArray())) ? 'checked' : '' }}
+                                           data-max="{{ old('capacidad_maxima', $clase->capacidad_maxima) }}">
                                     <label class="form-check-label" for="alumno_{{ $alumno->id }}">
                                         {{ $alumno->nombre_completo }}
+                                        @if($alumno->instrumentos->count() > 0)
+                                            <small class="text-muted">({{ $alumno->instrumentos->pluck('nombre')->implode(', ') }})</small>
+                                        @endif
                                     </label>
                                 </div>
                             </div>
                             @endforeach
                         </div>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <span id="selected-count">0</span> de <span id="max-capacity-display">{{ old('capacidad_maxima', $clase->capacidad_maxima) }}</span> alumnos seleccionados
+                            </small>
+                        </div>
+                        @else
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> No hay alumnos registrados. 
+                            <a href="{{ route('admin.alumnos.create') }}" class="alert-link">Crear un alumno primero</a>
+                        </div>
+                        @endif
                     </div>
 
                     <div class="mb-3 form-check">

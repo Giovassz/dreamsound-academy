@@ -49,6 +49,11 @@
                             @empty
                                 <span class="text-muted">Sin instrumentos</span>
                             @endforelse
+                            <br>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar-event"></i> 
+                                {{ $alumno->clases->count() }} clase(s)
+                            </small>
                         </td>
                         <td>
                             @if($alumno->is_active)
