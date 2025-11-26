@@ -66,27 +66,36 @@ class AlumnoController extends Controller
 
     public function update(Request $request, Alumno $alumno)
     {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'apellido' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:alumnos,email,' . $alumno->id,
-            'telefono' => 'nullable|string|max:20',
-            'fecha_nacimiento' => 'nullable|date',
-            'direccion' => 'nullable|string',
-            'instrumentos' => 'nullable|array',
-            'instrumentos.*' => 'exists:instrumentos,id',
-            'is_active' => 'boolean',
-        ]);
+        try {
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:255',
+                'apellido' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:alumnos,email,' . $alumno->id,
+                'telefono' => 'nullable|string|max:20',
+                'fecha_nacimiento' => 'nullable|date',
+                'direccion' => 'nullable|string',
+                'instrumentos' => 'nullable|array',
+                'instrumentos.*' => 'exists:instrumentos,id',
+                'is_active' => 'boolean',
+            ]);
 
-        $validated['is_active'] = $request->has('is_active');
-        $instrumentos = $validated['instrumentos'] ?? [];
-        unset($validated['instrumentos']);
+            $validated['is_active'] = $request->has('is_active') ? true : false;
+            $instrumentos = $validated['instrumentos'] ?? [];
+            unset($validated['instrumentos']);
 
-        $alumno->update($validated);
-        $alumno->instrumentos()->sync($instrumentos);
+            $alumno->update($validated);
+            
+            if (!empty($instrumentos)) {
+                $alumno->instrumentos()->sync($instrumentos);
+            } else {
+                $alumno->instrumentos()->detach();
+            }
 
-        return redirect()->route('admin.alumnos.index')
-            ->with('success', 'Alumno actualizado exitosamente.');
+            return redirect()->route('admin.alumnos.index')
+                ->with('success', 'Alumno actualizado exitosamente.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Error al actualizar alumno: ' . $e->getMessage()])->withInput();
+        }
     }
 
     public function destroy(Alumno $alumno)
